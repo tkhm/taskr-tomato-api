@@ -1,0 +1,18 @@
+@startuml
+title パッケージ間の依存関係と責任
+
+package "RESTエントリーポイント" as rest
+package "REST応答用リソース" as iobean
+package "ビジネスロジックと変換・仲介" as service
+package "データソースへのアクセス" as dao
+package "テーブルリソース" as dto
+package "その他のユーティリティ" as util
+
+rest ..> iobean : <<use>>
+rest ..> service : <<call>>
+service ..> iobean : <<use>>
+service ..> dto : <<use>>
+service ..> dao : <<call>>
+dao ..> dto : <<use>>
+
+@enduml

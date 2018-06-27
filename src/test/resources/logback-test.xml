@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE logback>
+<configuration>
+    <!-- このファイルはlogback.xmlに優先して適用されるのでtest/resourcesに置くことで開発環境での利用に限定できる -->
+    <!-- タブ区切りはXMLのタブ制御文字である&#x9;を指定する Eclipseなどで自動改行が入ると改行後のインデントが出力に影響するので注意  -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%date{yyyy-MM-dd HH:mm:ss}&#x9;[%thread]&#x9;%level&#x9;%logger{0}&#x9;-&#x9;%msg&#x9;\(%file:%line\)%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+    </appender>
+
+    <appender name="FILE"
+        class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/tomato-app.test.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/tomato-app.%d{yyyy-MM-dd}.test.log.zip</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss}&#x9;[%thread]&#x9;[%level]&#x9;-&#x9;%msg\(%file:%line\)%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <!-- テスト環境では通常のログのファイル出力はしない -->
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>

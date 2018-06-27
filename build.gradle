@@ -1,0 +1,55 @@
+apply plugin: 'java'
+apply plugin: 'eclipse-wtp'
+apply plugin: 'war'
+apply plugin: 'checkstyle'
+
+// version = '1.0' // versionをつけると、生成されるwarの末尾にversionが付く
+def defaultEncoding = 'UTF-8'
+tasks.withType(AbstractCompile).each {
+  it.options.encoding = defaultEncoding
+}
+tasks.withType(GroovyCompile).each {
+  it.groovyOptions.encoding = defaultEncoding
+}
+[compileJava, compileTestJava].each {
+  it.options.compilerArgs += ['-source', '1.8', '-target', '1.8']
+}
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+  // 2.26, 2.27ではswagger.jsonの値をうまく読めない挙動に遭遇 OpenAPI Initiativeでも話題になっており
+  // パッケージ名を文字列として直打ちすれば回避できるという微妙な状態だったため2.25.1に抑えている 例えば下記などにも記載あり
+  // https://raw.githubusercontent.com/swagger-api/swagger-samples/2.0/java/java-jersey2-petstore/src/main/java/io/swagger/sample/MyApplication.java
+  compile group: 'org.glassfish.jersey.containers', name: 'jersey-container-servlet', version: '2.25.1'
+  compile group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '2.25.1'
+  compile group: 'io.swagger', name: 'swagger-jersey2-jaxrs', version: '1.5.17'
+
+  compile group: 'org.postgresql', name: 'postgresql', version: '42.1.4'
+
+  compile 'ch.qos.logback:logback-classic:1.2.3'
+  testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+// enclosed testが2回実行されることを防ぐ
+test {
+  exclude '**/*$*'
+}
+
+javadoc {
+  options.charSet = defaultEncoding
+}
+
+// テストディレクトリはcheck対象としない
+checkstyle {
+  checkstyleTest.source = {}
+  configFile = file("${project.rootDir}/config/checkstyle/checkstyle.xml")
+  toolVersion = '8.0'
+}
+
+war {
+  archiveName 'taskr-tomato-api.war'
+}
+

@@ -1,0 +1,31 @@
+# Eclipse related
+/bin/
+.classpath
+.project
+.metadata/
+.recommenders/
+RemoteSystemsTempFiles/
+Servers/
+.settings/
+.checkstyle
+## master setting
+!config/checkstyle/.checkstyle
+
+# Gradle related
+build/
+.gradle/
+
+# Java related
+*.class
+
+# Backup / Temporaly related
+*.swp
+*.bak
+
+# Mac user related
+.DS_Store
+
+# Log output related
+logs/
+*.log
+
