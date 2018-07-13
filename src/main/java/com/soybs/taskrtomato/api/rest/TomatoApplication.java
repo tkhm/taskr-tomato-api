@@ -24,7 +24,7 @@ public class TomatoApplication extends Application {
     static final Response RESP_NOT_FOUND = Response.status(Status.NOT_FOUND).build();
 
     static final Response RESP_INTERNAL_SERVER_ERROR = Response.status(Status.INTERNAL_SERVER_ERROR).build();
-    static final Response RESP_NOT_IMPLEMENTED = Response.status(Status.NOT_IMPLEMENTED).build();
+    static final Response RESP_SERVICE_UNAVAILABLE = Response.status(Status.SERVICE_UNAVAILABLE).build();
 
     /** 正常系の応答で使う */
     static final int CODE_OK = 200;
