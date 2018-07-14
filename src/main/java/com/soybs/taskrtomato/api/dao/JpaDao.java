@@ -1,51 +1,42 @@
 package com.soybs.taskrtomato.api.dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.UUID;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.soybs.taskrtomato.api.dto.Tasks;
 import com.soybs.taskrtomato.api.dto.Tomatoes;
-import com.soybs.taskrtomato.api.util.PropertyLoader;
 
-public class PostgresDao {
-    private static final Logger logger = LoggerFactory.getLogger(PostgresDao.class);
+public class JpaDao {
+    private static final Logger logger = LoggerFactory.getLogger(JpaDao.class);
 
-    /** JDBC接続に使うDatabaseのURL */
-    private String dbUrl;
+    private EntityManagerFactory entityManagerFactory;
 
-    /** JDBC接続に使うDatabaseのプロパティ */
-    private Properties dbProps;
-
-    public PostgresDao() {
+    public JpaDao() {
         this.init();
     }
 
     /** 指定したtaskIdに該当するタスクのis_finishedカラムをtrueにする */
     public boolean finishTask(UUID taskId) {
-        String finishTaskSql = "UPDATE tasks SET is_finished = true WHERE task_id = ?";
         int updateCount = 0;
 
-        try (Connection conn = getConnection();
-                PreparedStatement finishTaskStmt = conn.prepareStatement(finishTaskSql)) {
-            finishTaskStmt.setObject(1, taskId);
+        EntityManager em = entityManagerFactory.createEntityManager();
+        em.getTransaction().begin();
+        Tasks task = em.find(Tasks.class, taskId);
 
-            updateCount = finishTaskStmt.executeUpdate();
-        } catch (SQLException e) {
-            logger.error(e.getSQLState());
-            logger.error(e.getMessage());
-            return false;
-        }
-
+        em.getTransaction().commit();
+       
         return updateCount == 1;
     }
 
@@ -186,32 +177,10 @@ public class PostgresDao {
      * @return Connection PostgreSQLへのConnection
      */
     private Connection getConnection() {
-
-        Connection conn = null;
-
-        try {
-            // postgreSQLのドライバーで接続
-            Class.forName("org.postgresql.Driver");
-            conn = DriverManager.getConnection(dbUrl, dbProps);
-            return conn;
-        } catch (ClassNotFoundException e) {
-            logger.error(e.getMessage());
-            return null;
-        } catch (SQLException e) {
-            logger.error(e.getSQLState());
-            logger.error(e.getMessage());
-            return null;
-        }
+        return null;
     }
 
     private void init() {
-        this.dbProps = PropertyLoader.loadDbProperty("/db.properties");
-        this.dbUrl = "jdbc:postgresql://" + dbProps.getProperty("url");
-
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            logger.error(e.getMessage());
-        }
+        entityManagerFactory = Persistence.createEntityManagerFactory("tomato-unit");
     }
 }

@@ -9,8 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.soybs.taskrtomato.api.dao.PostgresDao;
-import com.soybs.taskrtomato.api.dto.TasksDto;
-import com.soybs.taskrtomato.api.dto.TomatoesDto;
+import com.soybs.taskrtomato.api.dto.Tasks;
+import com.soybs.taskrtomato.api.dto.Tomatoes;
 import com.soybs.taskrtomato.api.iobean.Task;
 import com.soybs.taskrtomato.api.iobean.Tomato;
 import com.soybs.taskrtomato.api.iobean.User;
@@ -30,7 +30,7 @@ public class TaskService {
             return false;
         }
 
-        TasksDto tasksDto = convertTaskToTasksDto(task, user.id);
+        Tasks tasksDto = convertTaskToTasksDto(task, user.id);
 
         boolean isSucceeded = this.psqlDao.insertTask(tasksDto);
         return isSucceeded;
@@ -57,7 +57,7 @@ public class TaskService {
             return null;
         }
 
-        List<TasksDto> tasksDtoList;
+        List<Tasks> tasksDtoList;
         tasksDtoList = this.psqlDao.getTaskList(user.id);
 
         List<Task> taskList = new ArrayList<>();
@@ -80,7 +80,7 @@ public class TaskService {
             return false;
         }
 
-        TomatoesDto tomatoesDto = convertTomatoToTomatoesDto(tomato);
+        Tomatoes tomatoesDto = convertTomatoToTomatoesDto(tomato);
 
         boolean isSucceded = this.psqlDao.insertTomato(tomatoesDto);
         return isSucceded;
@@ -98,7 +98,7 @@ public class TaskService {
         return convertedUuid;
     }
 
-    private Task convertTasksDtoToTask(TasksDto tasksDto) {
+    private Task convertTasksDtoToTask(Tasks tasksDto) {
         Task task = new Task();
         task.id = tasksDto.id.toString();
         task.category = tasksDto.category;
@@ -115,8 +115,8 @@ public class TaskService {
         return task;
     }
 
-    private TasksDto convertTaskToTasksDto(Task task, String userId) {
-        TasksDto tasksDto = new TasksDto();
+    private Tasks convertTaskToTasksDto(Task task, String userId) {
+        Tasks tasksDto = new Tasks();
 
         tasksDto.id = convertStringToUuid(task.id);
         tasksDto.category = task.category;
@@ -128,7 +128,7 @@ public class TaskService {
         return tasksDto;
     }
 
-    private Tomato convertTomatoesDtoToTomato(TomatoesDto tomatoesDto) {
+    private Tomato convertTomatoesDtoToTomato(Tomatoes tomatoesDto) {
         Tomato tomato = new Tomato();
 
         tomato.id = tomatoesDto.id;
@@ -139,8 +139,8 @@ public class TaskService {
         return tomato;
     }
 
-    private TomatoesDto convertTomatoToTomatoesDto(Tomato tomato) {
-        TomatoesDto tomatoesDto = new TomatoesDto();
+    private Tomatoes convertTomatoToTomatoesDto(Tomato tomato) {
+        Tomatoes tomatoesDto = new Tomatoes();
 
         tomatoesDto.summary = tomato.summary;
         tomatoesDto.taskId = convertStringToUuid(tomato.taskId);
