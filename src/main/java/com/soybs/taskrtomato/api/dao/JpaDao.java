@@ -11,7 +11,9 @@ import java.util.UUID;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 
+import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,75 +31,35 @@ public class JpaDao {
 
     /** 指定したtaskIdに該当するタスクのis_finishedカラムをtrueにする */
     public boolean finishTask(UUID taskId) {
-        int updateCount = 0;
-
-        EntityManager em = entityManagerFactory.createEntityManager();
-        em.getTransaction().begin();
-        Tasks task = em.find(Tasks.class, taskId);
-
-        em.getTransaction().commit();
-       
-        return updateCount == 1;
+        try {
+            EntityManager em = entityManagerFactory.createEntityManager();
+            em.getTransaction().begin();
+            Tasks task = em.find(Tasks.class, taskId);
+            task.isFinished = true;
+            em.getTransaction().commit();
+            em.close();
+        } catch (HibernateException e) {
+            logger.error(e.getMessage());
+            return false;
+        }
+        return true;
     }
 
     /** 該当ユーザーのタスク一覧を応答する */
     public List<Tasks> getTaskList(String userId) {
         List<Tasks> tasksDtoList = new ArrayList<>();
-        String selectJoinedTasksSql = "SELECT"
-                + " tasks.id, tasks.category, tasks.title, tasks.description, tasks.is_finished, tasks.created_at, tasks.updated_at, tasks.user_id,"
-                + " tomatoes.id as tomato_id, tomatoes.summary, tomatoes.finished_at, tomatoes.task_id"
-                + " FROM tasks LEFT OUTER JOIN tomatoes ON tasks.id = tomatoes.task_id WHERE tasks.user_id = ?";
 
-        try (Connection conn = getConnection();
-                PreparedStatement selectTasksStmt = conn.prepareStatement(selectJoinedTasksSql)) {
-            selectTasksStmt.setString(1, userId);
-
-            try (ResultSet rs = selectTasksStmt.executeQuery();) {
-                UUID prevUuid = UUID.randomUUID(); // nullを渡しての比較はNPEになるので現時点で生成できるUUIDを使う
-                Tasks tasksDto = new Tasks();
-
-                while (rs.next()) {
-                    UUID currentUuid = (UUID) rs.getObject("id");
-
-                    if (currentUuid.compareTo(prevUuid) != 0) {
-                        tasksDto = new Tasks();
-                        tasksDtoList.add(tasksDto);
-                        tasksDto.id = currentUuid;
-                        tasksDto.category = rs.getString("category");
-                        tasksDto.title = rs.getString("title");
-                        tasksDto.description = rs.getString("description");
-                        tasksDto.isFinished = rs.getBoolean("is_finished");
-                        tasksDto.createdAt = rs.getTimestamp("created_at");
-                        tasksDto.updatedAt = rs.getTimestamp("updated_at");
-                        tasksDto.userId = rs.getString("user_id");
-                    }
-
-                    int tomatoId = rs.getInt("tomato_id");
-
-                    // nullの場合0になるので、その特性を活かす
-                    if (tomatoId == 0) {
-                        // outer joinでtomatoがない場合はtomatoを配列に追加せずに次の処理へ
-                        prevUuid = currentUuid;
-                        continue;
-                    }
-
-                    Tomatoes eachTomatoes = new Tomatoes();
-                    tasksDto.tomatoes.add(eachTomatoes);
-
-                    eachTomatoes.id = tomatoId;
-                    eachTomatoes.summary = rs.getString("summary");
-                    eachTomatoes.finishedAt = rs.getTimestamp("finished_at");
-                    eachTomatoes.taskId = (UUID) rs.getObject("task_id");
-
-                    prevUuid = currentUuid;
-                }
-            }
-        } catch (SQLException e) {
-            logger.error(e.getSQLState());
+        try {
+            EntityManager em = entityManagerFactory.createEntityManager();
+            TypedQuery<Tasks> query = em
+                    .createQuery("SELECT task FROM Tasks task WHERE task.userId = :userId", Tasks.class)
+                    .setParameter("userId", userId);
+            tasksDtoList = query.getResultList();
+            em.close();
+        } catch (HibernateException e) {
             logger.error(e.getMessage());
             return null;
         }
-
         return tasksDtoList;
     }
 

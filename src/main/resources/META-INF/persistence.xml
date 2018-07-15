@@ -13,7 +13,7 @@
 			<property name="connection_pool_size" value="5" />
 			<property name="hbm2ddl.auto" value="create" />
 			<property name="show_sql" value="true" />
-			<!-- <mapping class="com.epam.rudenkov.model.Book"/> -->
+			<property name="format_sql" value="true" />
 		</properties>
 	</persistence-unit>
 </persistence>

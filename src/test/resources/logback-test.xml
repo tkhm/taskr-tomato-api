@@ -24,6 +24,9 @@
         </encoder>
     </appender>
 
+    <!-- hibernateで発行するSQLのみDEBUGにして出力させる -->
+    <logger name="org.hibernate.SQL" level="DEBUG" />
+
     <root level="INFO">
         <!-- テスト環境では通常のログのファイル出力はしない -->
         <appender-ref ref="STDOUT" />
