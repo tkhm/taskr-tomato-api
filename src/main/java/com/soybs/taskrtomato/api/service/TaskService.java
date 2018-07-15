@@ -8,7 +8,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.soybs.taskrtomato.api.dao.PostgresDao;
+import com.soybs.taskrtomato.api.dao.JpaDao;
 import com.soybs.taskrtomato.api.dto.Tasks;
 import com.soybs.taskrtomato.api.dto.Tomatoes;
 import com.soybs.taskrtomato.api.iobean.Task;
@@ -18,10 +18,10 @@ import com.soybs.taskrtomato.api.iobean.User;
 public class TaskService {
     private static final Logger logger = LoggerFactory.getLogger(TaskService.class);
 
-    private PostgresDao psqlDao;
+    private JpaDao jpaDao;
 
     public TaskService() {
-        this.psqlDao = new PostgresDao();
+        this.jpaDao = new JpaDao();
     }
 
     /** 指定ユーザーでタスクを新規作成する */
@@ -32,7 +32,7 @@ public class TaskService {
 
         Tasks tasksDto = convertTaskToTasksDto(task, user.id);
 
-        boolean isSucceeded = this.psqlDao.insertTask(tasksDto);
+        boolean isSucceeded = this.jpaDao.insertTask(tasksDto);
         return isSucceeded;
     }
 
@@ -46,7 +46,7 @@ public class TaskService {
             return false;
         }
 
-        boolean isSucceeded = this.psqlDao.finishTask(convertStringToUuid(taskId));
+        boolean isSucceeded = this.jpaDao.finishTask(convertStringToUuid(taskId));
 
         return isSucceeded;
     }
@@ -58,7 +58,7 @@ public class TaskService {
         }
 
         List<Tasks> tasksDtoList;
-        tasksDtoList = this.psqlDao.getTaskList(user.id);
+        tasksDtoList = this.jpaDao.getTaskList(user.id);
 
         List<Task> taskList = new ArrayList<>();
         if (!Objects.isNull(tasksDtoList)) {
@@ -82,7 +82,7 @@ public class TaskService {
 
         Tomatoes tomatoesDto = convertTomatoToTomatoesDto(tomato);
 
-        boolean isSucceded = this.psqlDao.insertTomato(tomatoesDto);
+        boolean isSucceded = this.jpaDao.insertTomato(tomatoesDto);
         return isSucceded;
     }
 
@@ -153,7 +153,7 @@ public class TaskService {
         if (Objects.isNull(taskId) || Objects.isNull(userId)) {
             return false;
         }
-        return this.psqlDao.isTaskUserOwn(taskId, userId);
+        return this.jpaDao.isTaskUserOwn(taskId, userId);
     }
 
 }

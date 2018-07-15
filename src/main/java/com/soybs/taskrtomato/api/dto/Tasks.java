@@ -25,20 +25,20 @@ public class Tasks {
 
     public String description;
 
-    @Column(name="is_finished")
+    @Column(name = "is_finished")
     public boolean isFinished;
 
-    @Column(name="created_at")
+    @Column(name = "created_at")
     public Timestamp createdAt;
 
-    @Column(name="updated_at")
+    @Column(name = "updated_at")
     public Timestamp updatedAt;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade= CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "task_id")
     public List<Tomatoes> tomatoes;
 
-    @Column(name="user_id")
+    @Column(name = "user_id")
     public String userId;
 
     public Tasks() {

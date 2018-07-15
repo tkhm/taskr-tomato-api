@@ -1,16 +1,15 @@
 package com.soybs.taskrtomato.api.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.hibernate.HibernateException;
@@ -65,81 +64,59 @@ public class JpaDao {
 
     /** タスクを保存する */
     public boolean insertTask(Tasks task) {
-        String insertTaskSql = "INSERT INTO tasks (id,category,title,description,is_finished,created_at,updated_at,user_id)"
-                + " VALUES(?,?,?,?,false,now(),now(),?)";
-        int updateCount = 0;
-
-        try (Connection conn = getConnection();
-                PreparedStatement insertTaskStmt = conn.prepareStatement(insertTaskSql)) {
-            insertTaskStmt.setObject(1, task.id);
-            insertTaskStmt.setString(2, task.category);
-            insertTaskStmt.setString(3, task.title);
-            insertTaskStmt.setString(4, task.description);
-            insertTaskStmt.setString(5, task.userId);
-
-            updateCount = insertTaskStmt.executeUpdate();
-        } catch (SQLException e) {
-            logger.error(e.getSQLState());
+        // JPAではinsert時にnow()を入れるのは難しいので処理の直前に時間を取得する
+        Timestamp currentTimestamp = new Timestamp(new Date().getTime());
+        try {
+            EntityManager em = entityManagerFactory.createEntityManager();
+            em.getTransaction().begin();
+            em.persist(task);
+            task.isFinished = false;
+            task.createdAt = currentTimestamp;
+            task.updatedAt = currentTimestamp;
+            em.getTransaction().commit();
+            em.close();
+        } catch (HibernateException e) {
             logger.error(e.getMessage());
             return false;
         }
-
-        return updateCount == 1;
+        return true;
     }
 
     /** タスクに紐づくトマトを保存する */
-    public boolean insertTomato(Tomatoes tomatoesDto) {
-        String insertTaskSql = "INSERT INTO tomatoes (summary,finished_at,task_id) VALUES(?,now(),?)";
-        int updateCount = 0;
-
-        try (Connection conn = getConnection();
-                PreparedStatement insertTaskStmt = conn.prepareStatement(insertTaskSql)) {
-            insertTaskStmt.setString(1, tomatoesDto.summary);
-            insertTaskStmt.setObject(2, tomatoesDto.taskId);
-
-            updateCount = insertTaskStmt.executeUpdate();
-        } catch (SQLException e) {
-            logger.error(e.getSQLState());
+    public boolean insertTomato(Tomatoes tomato) {
+        // JPAではinsert時にnow()を入れるのは難しいので処理の直前に時間を取得する
+        Timestamp currentTimestamp = new Timestamp(new Date().getTime());
+        tomato.finishedAt = currentTimestamp;
+        try {
+            EntityManager em = entityManagerFactory.createEntityManager();
+            em.getTransaction().begin();
+            em.persist(tomato);
+            em.getTransaction().commit();
+            em.close();
+        } catch (HibernateException e) {
             logger.error(e.getMessage());
             return false;
         }
-
-        return updateCount == 1;
+        return true;
     }
 
     /** 1件以上の応答があればtrue, 厳密には1件の応答になるはず */
     public boolean isTaskUserOwn(UUID taskId, String userId) {
-        String countTaskSql = "SELECT COUNT(*) FROM tasks WHERE id = ? AND user_id = ?";
+
         int taskCount = 0;
-
-        try (Connection conn = getConnection(); PreparedStatement countTaskStmt = conn.prepareStatement(countTaskSql)) {
-            countTaskStmt.setObject(1, taskId);
-            countTaskStmt.setString(2, userId);
-
-            try (ResultSet rs = countTaskStmt.executeQuery();) {
-                if (rs.next()) {
-                    taskCount = rs.getInt(1);
-                } else {
-                    logger.info("Specified task_id and user_id is not in tasks : " + taskId + "," + userId);
-                    return false;
-                }
-            }
-        } catch (SQLException e) {
-            logger.error(e.getSQLState());
+        try {
+            EntityManager em = entityManagerFactory.createEntityManager();
+            Query query = em
+                    .createQuery("SELECT COUNT(task) FROM Tasks task WHERE task.id = :taskId AND task.userId = :userId")
+                    .setParameter("id", taskId).setParameter("userId", userId);
+            taskCount = (int) query.getSingleResult();
+            em.close();
+        } catch (HibernateException e) {
             logger.error(e.getMessage());
             return false;
         }
 
         return taskCount > 0;
-    }
-
-    /**
-     * PostgreSQLの設定値を取得してConnectionをreturnするメソッド
-     *
-     * @return Connection PostgreSQLへのConnection
-     */
-    private Connection getConnection() {
-        return null;
     }
 
     private void init() {

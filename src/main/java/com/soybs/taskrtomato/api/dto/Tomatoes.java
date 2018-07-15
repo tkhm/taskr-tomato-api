@@ -15,10 +15,10 @@ public class Tomatoes {
 
     public String summary;
 
-    @Column(name="finished_at")
+    @Column(name = "finished_at")
     public Timestamp finishedAt;
 
-    @Column(name="task_id")
+    @Column(name = "task_id")
     public UUID taskId;
 
 }
