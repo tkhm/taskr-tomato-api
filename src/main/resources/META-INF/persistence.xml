@@ -6,9 +6,7 @@
     <properties>
       <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
       <property name="hibernate.connection.driver_class" value="org.postgresql.Driver" />
-      <property name="hibernate.connection.username" value="postgres" />
-      <property name="hibernate.connection.password" value="postgres" />
-      <property name="hibernate.connection.url" value="jdbc:postgresql://localhost:15432/tomato" />
+      <property name="hibernate.connection.datasource" value="java:comp/env/jdbc/TomatoDatabase" />
 
       <property name="connection_pool_size" value="5" />
       <property name="hbm2ddl.auto" value="create" />
