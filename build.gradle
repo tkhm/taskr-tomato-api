@@ -64,6 +64,7 @@ war {
  * java - Gradle [META-INF/persistence.xml] was not found - Stack Overflow https://stackoverflow.com/questions/21967952/gradle-meta-inf-persistence-xml-was-not-found
  * java - Hibernate with Tomcat and gradle - Stack Overflow https://stackoverflow.com/questions/22972947/hibernate-with-tomcat-and-gradle
  * Upgrade to gradle 4 need new hibernate fix for deprecated msg - Help/Discuss - Gradle Forums https://discuss.gradle.org/t/upgrade-to-gradle-4-need-new-hibernate-fix-for-deprecated-msg/23129
+ * java - Splitting all output directories in Gradle - Stack Overflow https://stackoverflow.com/questions/44578302/splitting-all-output-directories-in-gradle
 */
 sourceSets {
   java {

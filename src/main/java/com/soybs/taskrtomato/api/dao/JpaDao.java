@@ -107,7 +107,7 @@ public class JpaDao {
         try {
             EntityManager em = entityManagerFactory.createEntityManager();
             Query query = em
-                    .createQuery("SELECT COUNT(task) FROM Tasks task WHERE task.id = :taskId AND task.userId = :userId")
+                    .createQuery("SELECT COUNT(task) FROM Tasks task WHERE task.id = :id AND task.userId = :userId")
                     .setParameter("id", taskId).setParameter("userId", userId);
             taskCount = (int) query.getSingleResult();
             em.close();
