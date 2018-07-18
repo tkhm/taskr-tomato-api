@@ -8,7 +8,7 @@ import javax.ws.rs.core.Application;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.models.Info;
 
-@ApplicationPath("api")
+@ApplicationPath("/api")
 public class TomatoApplicationConfig extends Application {
     /** Tomato Config */
     public TomatoApplicationConfig() {

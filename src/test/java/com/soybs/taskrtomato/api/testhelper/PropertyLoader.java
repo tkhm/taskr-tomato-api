@@ -1,4 +1,4 @@
-package com.soybs.taskrtomato.api.util;
+package com.soybs.taskrtomato.api.testhelper;
 
 import java.io.IOException;
 import java.io.InputStream;
