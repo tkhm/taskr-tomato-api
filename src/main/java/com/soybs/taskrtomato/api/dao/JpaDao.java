@@ -106,10 +106,10 @@ public class JpaDao {
         int taskCount = 0;
         try {
             EntityManager em = entityManagerFactory.createEntityManager();
-            Query query = em
-                    .createQuery("SELECT COUNT(task) FROM Tasks task WHERE task.id = :id AND task.userId = :userId")
+            TypedQuery<Long> query = em
+                    .createQuery("SELECT COUNT(task) FROM Tasks task WHERE task.id = :id AND task.userId = :userId", Long.class)
                     .setParameter("id", taskId).setParameter("userId", userId);
-            taskCount = (int) query.getSingleResult();
+            taskCount = query.getSingleResult().intValue();
             em.close();
         } catch (HibernateException e) {
             logger.error(e.getMessage());
